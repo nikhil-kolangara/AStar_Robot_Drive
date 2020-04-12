@@ -1,15 +1,10 @@
 import matplotlib.pyplot as plt
-from matplotlib.font_manager import FontProperties
-from matplotlib.patches import Rectangle
-import cv2
-
-# import matplotlib.lines as mlines
 plt.style.use('seaborn-pastel')
 import numpy as np
+from matplotlib.patches import Circle
+import cv2
+import glob
 
-# import math
-# import cv2
-# import glob
 
 MAX_X = 500
 MAX_Y = 500
@@ -23,11 +18,11 @@ plotCircle2 = [(100), (-200, -300)]
 plotCircle3 = [(100), (200, -300)]
 plotCircle4 = [(100), (200, 300)]
 
-plotBorderWall = np.array([(-510, 510), (510, 510),(510, -510),(-510, -510)], dtype = 'float')
+plotBorderWall1 = np.array([(-500, 500), (500, 500),(500, -500),(-500, -500)], dtype = 'float')
+plotBorderWall2 = np.array([(-510, 510), (510, 510),(510, -510),(-510, -510)], dtype = 'float')
 
 fig = plt.figure()
-fig.set_dpi(300)
-plt.axis('off')
+fig.set_dpi(200)
 
 axis = fig.add_subplot(111, aspect='equal', autoscale_on=False, xlim=(-(MAX_X+50), MAX_X+50), ylim=(-(MAX_Y+50), MAX_Y+50))
 
@@ -89,74 +84,85 @@ def isValidStep(position, clearance):
     else:
         return False
 
+def save_fig(count):
+    print("frame no:",count)
+    if 0 <= count < 10:
+        plt.savefig(r"./Node/0000000" + str(count) + ".png", bbox_inches='tight')
+    if 10 <= count < 100:
+        plt.savefig(r"./Node/000000" + str(count) + ".png", bbox_inches='tight')
+    if 100 <= count < 1000:
+        plt.savefig(r"./Node/00000" + str(count) + ".png", bbox_inches='tight')
+    if 1000 <= count < 10000:
+        plt.savefig(r"./Node/0000" + str(count) + ".png", bbox_inches='tight')
+    if 10000 <= count < 100000:
+        plt.savefig(r"./Node/000" + str(count) + ".png", bbox_inches='tight')
+    if 100000 <= count < 1000000:
+        plt.savefig(r"./Node/00" + str(count) + ".png", bbox_inches='tight')
 
-def showPath(STEP_OBJECT_LIST, pathValues):
+def makeVideo():
+    original = []
+    title = []
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter('Output_video1.avi', fourcc, 10.0, (779, 779))
+    filenames = [f for f in glob.iglob("Node/*")]
+    filenames.sort()
+    for filename in filenames:
+        img = cv2.imread(filename)
+        print(filename)
+        out.write(img)
+        original.append(img)
+    #time.sleep(1)
+    length = len(original)
+
+
+def showPath(STEP_OBJECT_LIST, pathValues, finalGoal):
     count = 0
     circle1 = plt.Circle((plotCircle1[1]), plotCircle1[0], fc=None)
     circle2 = plt.Circle((plotCircle2[1]), plotCircle2[0], fc=None)
     circle3 = plt.Circle((plotCircle3[1]), plotCircle3[0], fc=None)
     circle4 = plt.Circle((plotCircle4[1]), plotCircle4[0], fc=None)
+
     square1 = plt.Polygon(plotSquare1)
     square2 = plt.Polygon(plotSquare2)
     square3 = plt.Polygon(plotSquare3)
-    borderWall = plt.Polygon(plotBorderWall, fill=None)
+    borderWall1 = plt.Polygon(plotBorderWall1, fill=None)
+    borderWall2 = plt.Polygon(plotBorderWall2, fill=None)
     obstacles = [circle1, circle2, circle3, circle4, square1, square2, square3]
 
     for item in obstacles:
         axis.add_patch(item)
-        axis.add_patch(borderWall)
+        axis.add_patch(borderWall1)
+        axis.add_patch(borderWall2)
+        plt.gca().add_patch(Circle((finalGoal[0], finalGoal[1]), 20, color='green', fill=None))
+        plt.axis('off')
+        plt.plot(finalGoal[0], finalGoal[1], 'ro')
 
-    # xTracepoint1 = []
-    # yTracepoint2 = []
-    #
-    # yTracepoint1 = []
-    # xTracepoint2 = []
-    #
-    # xTrackpoint1 = []
-    # yTrackpoint1 = []
-    #
-    # xTrackpoint2 = []
-    # yTrackpoint2 = []
-    #
-    # imageList = []
-    #
-    # framerate = 30
-    # for itr in range(1, len(STEP_OBJECT_LIST)):
-    #     try:
-    #         startTrace = STEP_OBJECT_LIST[itr * framerate].parent
-    #         xTracepoint1 = startTrace.position[0]
-    #         yTracepoint1 = startTrace.position[1]
-    #         xTracepoint2 = STEP_OBJECT_LIST[itr * framerate].position[0] - startTrace.position[0]
-    #         yTracepoint2 = STEP_OBJECT_LIST[itr * framerate].position[1] - startTrace.position[1]
-    #         axis.quiver(xTracepoint1, yTracepoint1, xTracepoint2, yTracepoint2, units='xy', scale=1, color='blue')
-    #         plt.savefig("./images/frame" + str(count) + ".png", dpi = 500, quality = 80)
-    #         imageList.append("images/frame" + str(count) + ".png")
-    #         # print(len(STEP_OBJECT_LIST))
-    #         print("count:", count)
-    #         count = count + 1
-    #     except:
-    #         break
-    #
-    # for itr in range(1, len(pathValues)):
-    #     try:
-    #         xTrackpoint1 = pathValues[itr][0]
-    #         yTrackpoint1 = pathValues[itr][1]
-    #         xTrackpoint2 = pathValues[itr + 1][0] - pathValues[itr][0]
-    #         yTrackpoint2 = pathValues[itr + 1][1] - pathValues[itr][1]
-    #         axis.quiver(xTrackpoint1, yTrackpoint1, xTrackpoint2, yTrackpoint2, units='xy', scale=1, color='red')
-    #         plt.savefig("./images/frame" + str(count) + ".png", dpi = 500)
-    #         imageList.append("images/frame" + str(count) + ".png")
-    #         print("count:", count)
-    #         count = count + 1
-    #     except:
-    #         break
-    #
-    # output = cv2.VideoWriter("Simulation_Video.avi", cv2.VideoWriter_fourcc(*'XVID'), 20.0, (1280, 720))
-    # for image in imageList:
-    #     display = cv2.imread(image)
-    #     display = cv2.resize(display, (1280, 720))
-    #     output.write(display)
-    # output.release()
+    frameNo = 0
+    frameRate = 3
+    for index in range(0, len(STEP_OBJECT_LIST), frameRate):
+        try:
+            subSteps = STEP_OBJECT_LIST[index].curveSteps
+            for i in range(10):
+                plt.plot([subSteps[i][0], subSteps[i+1][0]], [subSteps[i][1], subSteps[i+1][1]], color='blue', linewidth=0.2, markersize=5)
+            save_fig(frameNo)
+            frameNo = frameNo + 1
+        except:
+            continue
 
+    index = 0
+    while(index < len(pathValues)):
+        try:
+            flag = 0
+            while flag < 10:
+                plt.plot([pathValues[flag+index][0], pathValues[flag+index+1][0]], [pathValues[flag+index][1], pathValues[flag+index+1][1]], color='red', linewidth=0.3, markersize=5)
+                flag+=1
+            save_fig(frameNo)
+            frameNo = frameNo + 1
+            index = index + 10
+        except:
+            save_fig(frameNo)
+            break
+
+    makeVideo()
     plt.show()
 

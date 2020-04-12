@@ -68,7 +68,7 @@ class Step:
 
                 if newX >= -MAX_X and newX <= MAX_X and newY >= -MAX_Y and newY <= MAX_Y and (
                         isValidStep([newX, newY], RADIUS + CLEARANCE) == True):
-                    plt.plot([xS, newX], [yS, newY], color="blue")
+                    #plt.plot([xS, newX], [yS, newY], color="blue")
                     curveSteps.append([newX, newY])
                     continue
                 else:
@@ -105,15 +105,15 @@ def backtrack(stepObj):
     pathValues.append([stepObj.position[0], stepObj.position[1]]) #, stepObj.angle])
 
     pathValues.reverse()
-    x = []
-    y = []
-    for each in pathValues:
-        x.append(each[0])
-        y.append(each[1])
-    plt.plot(x, y, color="red")
-    showPath(STEP_OBJECT_LIST, pathValues)
+    # x = []
+    # y = []
+    # for each in pathValues:
+    #     x.append(each[0])
+    #     y.append(each[1])
+    # plt.plot(x, y, color="red")
     print("length of step_object_list", len(STEP_OBJECT_LIST))
     print("length of the pathvalues", len(pathValues))
+    showPath(STEP_OBJECT_LIST, pathValues, GOAL_POINT)
     print(pathValues)
 
 
